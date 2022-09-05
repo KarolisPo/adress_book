@@ -23,18 +23,15 @@ addForm.addEventListener("submit", (e) => {
 
     if (contacts.length > 0) {
       contacts.forEach((singleContact) => {
-        const contactArr = Object.entries(singleContact);
         const card = document.createElement("div");
         const editBtn = document.createElement("button");
         const favoriteBtn = document.createElement("button");
 
-        card.textContent = `${contactArr[0][1]} : ${contactArr[1][1]}`;
+        card.textContent = `${singleContact.name} : ${singleContact.phone_number}`;
         editBtn.textContent = "Edit";
         favoriteBtn.textContent = "Favorite";
 
-        adressBook.appendChild(card);
-        adressBook.appendChild(editBtn);
-        adressBook.appendChild(favoriteBtn);
+        adressBook.append(card, editBtn, favoriteBtn);
       });
     }
   }
