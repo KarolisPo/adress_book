@@ -1,5 +1,6 @@
 const addForm = document.querySelector("#addContact");
 const adressBook = document.querySelector("#adressBook");
+const localContanct = "contacts";
 
 let contacts = [];
 let favorites = [];
@@ -29,29 +30,36 @@ function createContact(object) {
 
   document.querySelectorAll(".delete").forEach((button) => {
     button.addEventListener("click", (e) => {
-      deleteArrayObj(contacts, e);
+      deleteArrayObj(e);
     });
   });
 
   document.querySelectorAll(".favorite").forEach((button) => {
     button.addEventListener("click", (e) => {
-      const indexOfObject = contacts.indexOf(e.target.name);
-      favorites.push(contacts[contacts.indexOf(e.target.name)]);
-      console.log(favorites);
+      addToFavorites(e);
     });
   });
 }
 
-function deleteArrayObj(array, event) {
-  const indexOfObj = array.findIndex((element) => {
+function addToFavorites(event) {
+  const indexOfObj = contacts.findIndex((element) => {
     return element.phone_number === event.target.name;
   });
-  array.splice(indexOfObj, 1);
-  localStorage.setItem("contacts", JSON.stringify(array));
 
-  adressBook.removeChild(event.target.parentElement);
+  favorites.push(contacts[indexOfObj]);
+  console.log("this is favorites", favorites);
+
+  localStorage.setItem("favorites", JSON.stringify(favorites));
 }
 
+function deleteArrayObj(event) {
+  const indexOfObj = contacts.findIndex((element) => {
+    return element.phone_number === event.target.name;
+  });
+  contacts.splice(indexOfObj, 1);
+  localStorage.setItem("contacts", JSON.stringify(contacts));
+  adressBook.removeChild(event.target.parentElement);
+}
 
 function checkContent(div) {
   if (div.firstChild) {
