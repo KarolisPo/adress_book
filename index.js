@@ -28,16 +28,12 @@ function createContact(object) {
   card.append(editBtn, favoriteBtn, deleteBtn);
   adressBook.appendChild(card);
 
-  document.querySelectorAll(".delete").forEach((button) => {
-    button.addEventListener("click", (e) => {
-      deleteArrayObj(e);
-    });
+  deleteBtn.addEventListener("click", (e) => {
+    deleteArrayObj(e);
   });
 
-  document.querySelectorAll(".favorite").forEach((button) => {
-    button.addEventListener("click", (e) => {
-      addToFavorites(e);
-    });
+  favoriteBtn.addEventListener("click", (e) => {
+    addToFavorites(e);
   });
 }
 
@@ -46,9 +42,22 @@ function addToFavorites(event) {
     return element.phone_number === event.target.name;
   });
 
-  favorites.push(contacts[indexOfObj]);
-  console.log("this is favorites", favorites);
+  const isInList = favorites.some(
+    (contact) => contact.phone_number === event.target.name
+  );
 
+  if (isInList) {
+    const indexOfFav = favorites.findIndex((element) => {
+      return element.phone_number === event.target.name;
+    });
+    favorites.splice(indexOfFav, 1);
+    event.target.classList.toggle("myFavorite");
+  } else {
+    event.target.classList.toggle("myFavorite");
+    favorites.push(contacts[indexOfObj]);
+  }
+
+  console.log(favorites);
   localStorage.setItem("favorites", JSON.stringify(favorites));
 }
 
@@ -93,8 +102,28 @@ addForm.addEventListener("submit", (e) => {
 if (localStorage.getItem("contacts")) {
   checkContent(adressBook);
   let contactObj = JSON.parse(localStorage.getItem("contacts"));
+
   contactObj.forEach((singleContact) => {
     contacts.push(singleContact);
     createContact(singleContact);
   });
 }
+
+if (localStorage.getItem("favorites")) {
+  let favoriteObj = JSON.parse(localStorage.getItem("favorites"));
+
+  favoriteObj.forEach((singleContact) => {
+    favorites.push(singleContact);
+  });
+
+  const favoriteBtns = document.querySelectorAll(".favorite");
+  favoriteBtns.forEach((singleBtn) => {
+    if (
+      favorites.some((singleObj) => singleObj.phone_number === singleBtn.name)
+    ) {
+      singleBtn.classList.toggle("myFavorite");
+    }
+  });
+}
+
+console.log(localStorage.getItem("favorites"));
