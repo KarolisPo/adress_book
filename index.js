@@ -1,9 +1,7 @@
 const addForm = document.querySelector("#addContact");
 const adressBook = document.querySelector("#adressBook");
-const localContanct = "contacts";
 
 let contacts = [];
-let favorites = [];
 
 function createContact(object) {
   const card = document.createElement("div");
@@ -33,7 +31,10 @@ function createContact(object) {
   adressBook.appendChild(card);
 
   if (
-    favorites.some((singleObj) => singleObj.phone_number === favoriteBtn.name)
+    contacts.some(
+      (singleObj) =>
+        singleObj.phone_number === favoriteBtn.name && singleObj.favorite
+    )
   ) {
     favoriteBtn.classList.toggle("myFavorite");
   }
@@ -43,7 +44,7 @@ function createContact(object) {
   });
 
   favoriteBtn.addEventListener("click", (e) => {
-    addToFavorites(e);
+    addFavorite(e);
   });
 
   editBtn.addEventListener("click", (e) => {
@@ -97,27 +98,19 @@ function editExistingContact(name, phone, oldNum) {
   createContactCard();
 }
 
-function addToFavorites(event) {
+function addFavorite(event) {
   const indexOfObj = contacts.findIndex((element) => {
     return element.phone_number === event.target.name;
   });
 
-  const isInList = favorites.some(
-    (contact) => contact.phone_number === event.target.name
-  );
-
-  if (isInList) {
-    const indexOfFav = favorites.findIndex((element) => {
-      return element.phone_number === event.target.name;
-    });
-    favorites.splice(indexOfFav, 1);
+  if (contacts[indexOfObj].favorite) {
+    contacts[indexOfObj].favorite = false;
     event.target.classList.toggle("myFavorite");
   } else {
     event.target.classList.toggle("myFavorite");
-    favorites.push(contacts[indexOfObj]);
+    contacts[indexOfObj].favorite = true;
   }
-
-  localStorage.setItem("favorites", JSON.stringify(favorites));
+  localStorage.setItem("contacts", JSON.stringify(contacts));
 }
 
 function deleteArrayObj(event) {
@@ -153,6 +146,7 @@ addForm.addEventListener("submit", (e) => {
     person = {};
     person[contactName.name] = contactName.value;
     person[phoneNum.name] = phoneNum.value;
+    person["favorite"] = false;
     contacts.push(person);
     localStorage.setItem("contacts", JSON.stringify(contacts));
 
@@ -168,8 +162,8 @@ document.querySelector("#search").addEventListener("submit", (e) => {
 
   const indexOfObj = contacts.findIndex((element) => {
     return (
-      element.name === searchInput.value ||
-      element.phone_number === searchInput.value
+      element.name.includes(searchInput.value) ||
+      element.phone_number.includes(searchInput.value)
     );
   });
   if (indexOfObj > -1) {
@@ -185,25 +179,8 @@ if (localStorage.getItem("contacts")) {
   checkContent(adressBook);
   let contactObj = JSON.parse(localStorage.getItem("contacts"));
 
+  contacts = contactObj;
   contactObj.forEach((singleContact) => {
-    contacts.push(singleContact);
     createContact(singleContact);
-  });
-}
-
-if (localStorage.getItem("favorites")) {
-  let favoriteObj = JSON.parse(localStorage.getItem("favorites"));
-
-  favoriteObj.forEach((singleContact) => {
-    favorites.push(singleContact);
-  });
-
-  const favoriteBtns = document.querySelectorAll(".favorite");
-  favoriteBtns.forEach((singleBtn) => {
-    if (
-      favorites.some((singleObj) => singleObj.phone_number === singleBtn.name)
-    ) {
-      singleBtn.classList.toggle("myFavorite");
-    }
   });
 }
