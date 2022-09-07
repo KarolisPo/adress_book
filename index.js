@@ -161,6 +161,26 @@ addForm.addEventListener("submit", (e) => {
   }
 });
 
+document.querySelector("#search").addEventListener("submit", (e) => {
+  e.preventDefault();
+  const searchInput = document.querySelector("#searchInput");
+  const searchResult = document.querySelector("#searchResult");
+
+  const indexOfObj = contacts.findIndex((element) => {
+    return (
+      element.name === searchInput.value ||
+      element.phone_number === searchInput.value
+    );
+  });
+  if (indexOfObj > -1) {
+    searchResult.textContent = "";
+    searchResult.textContent = `${contacts[indexOfObj].name} : ${contacts[indexOfObj].phone_number} `;
+  } else {
+    searchResult.textContent = "";
+    searchResult.textContent = "Contact not found!";
+  }
+});
+
 if (localStorage.getItem("contacts")) {
   checkContent(adressBook);
   let contactObj = JSON.parse(localStorage.getItem("contacts"));
