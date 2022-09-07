@@ -6,8 +6,9 @@ let contacts = [];
 let favorites = [];
 
 function createContact(object) {
-  console.log("this is start", contacts);
   const card = document.createElement("div");
+  const contactInfo = document.createElement("div");
+  const btnWrap = document.createElement("div");
   const editBtn = document.createElement("button");
   const favoriteBtn = document.createElement("button");
   const deleteBtn = document.createElement("button");
@@ -19,14 +20,23 @@ function createContact(object) {
   favoriteBtn.classList.add("favorite");
   editBtn.classList.add("edit");
   deleteBtn.classList.add("delete");
+  contactInfo.classList.add("info-wrap");
 
-  card.textContent = `${object.name} : ${object.phone_number}`;
+  contactInfo.textContent = `${object.name} : ${object.phone_number}`;
   editBtn.textContent = "Edit";
   favoriteBtn.textContent = "Favorite";
   deleteBtn.textContent = "Delete";
 
-  card.append(editBtn, favoriteBtn, deleteBtn);
+  btnWrap.append(editBtn, favoriteBtn, deleteBtn);
+  contactInfo.append(btnWrap);
+  card.append(contactInfo);
   adressBook.appendChild(card);
+
+  if (
+    favorites.some((singleObj) => singleObj.phone_number === favoriteBtn.name)
+  ) {
+    favoriteBtn.classList.toggle("myFavorite");
+  }
 
   deleteBtn.addEventListener("click", (e) => {
     deleteArrayObj(e);
@@ -35,6 +45,56 @@ function createContact(object) {
   favoriteBtn.addEventListener("click", (e) => {
     addToFavorites(e);
   });
+
+  editBtn.addEventListener("click", (e) => {
+    editContact(e);
+  });
+}
+
+function editContact(event) {
+  const editForm = document.createElement("form");
+  const newName = document.createElement("input");
+  const newNumber = document.createElement("input");
+  const saveBtn = document.createElement("button");
+
+  newName.name = "editName";
+  newNumber.name = "editNumber";
+
+  saveBtn.setAttribute("type", "submit");
+  saveBtn.name = event.target.name;
+  saveBtn.textContent = "Save";
+
+  editForm.classList.add("editContact");
+  editForm.append(newName, newNumber, saveBtn);
+  editForm.classList.add = "editContactForm";
+  currentContact = contacts.filter((singleContact) => {
+    return singleContact.phone_number === event.target.name;
+  });
+
+  newName.value = currentContact[0].name;
+  newNumber.value = currentContact[0].phone_number;
+
+  event.target.parentElement.parentElement.parentElement.appendChild(editForm);
+  event.target.parentElement.parentElement.innerHTML = null;
+
+  editForm.addEventListener("submit", (e) => {
+    e.preventDefault();
+    const oldNumber = e.target.lastChild.name;
+    editExistingContact(newName.value, newNumber.value, oldNumber);
+  });
+}
+
+function editExistingContact(name, phone, oldNum) {
+  const indexOfObj = contacts.findIndex((element) => {
+    return element.phone_number === oldNum;
+  });
+
+  contacts[indexOfObj].name = name;
+  contacts[indexOfObj].phone_number = phone;
+
+  localStorage.setItem("contacts", JSON.stringify(contacts));
+  checkContent(adressBook);
+  createContactCard();
 }
 
 function addToFavorites(event) {
@@ -57,7 +117,6 @@ function addToFavorites(event) {
     favorites.push(contacts[indexOfObj]);
   }
 
-  console.log(favorites);
   localStorage.setItem("favorites", JSON.stringify(favorites));
 }
 
@@ -76,6 +135,14 @@ function checkContent(div) {
   }
 }
 
+function createContactCard() {
+  if (contacts.length > 0) {
+    contacts.forEach((singleContact) => {
+      createContact(singleContact);
+    });
+  }
+}
+
 addForm.addEventListener("submit", (e) => {
   e.preventDefault();
 
@@ -90,12 +157,7 @@ addForm.addEventListener("submit", (e) => {
     localStorage.setItem("contacts", JSON.stringify(contacts));
 
     checkContent(adressBook);
-
-    if (contacts.length > 0) {
-      contacts.forEach((singleContact) => {
-        createContact(singleContact);
-      });
-    }
+    createContactCard();
   }
 });
 
@@ -125,5 +187,3 @@ if (localStorage.getItem("favorites")) {
     }
   });
 }
-
-console.log(localStorage.getItem("favorites"));
